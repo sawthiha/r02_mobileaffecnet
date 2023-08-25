@@ -190,15 +190,15 @@ class MPProctor:
   face_reid: TfLiteWrapper
   face_affect: TfLiteWrapper
 
-  def __init__(self, static_image_mode: bool=True):
+  def __init__(self, static_image_mode: bool=True, face_reid_model: str = 'models/face_reid.tflite', face_affect_model: str = 'models/face_affect.tflite'):
     self.face_mesh = mp.solutions.face_mesh.FaceMesh(
         static_image_mode=static_image_mode,
         max_num_faces=1,
         refine_landmarks=True,
         min_detection_confidence=0.5
     )
-    self.face_reid = TfLiteWrapper(model_path='face_reid.tflite')
-    self.face_affect = TfLiteWrapper(model_path='face_affect.tflite')
+    self.face_reid = TfLiteWrapper(model_path=face_reid_model)
+    self.face_affect = TfLiteWrapper(model_path=face_affect_model)
 
   def __enter__(self):
       self.face_mesh = self.face_mesh.__enter__()
@@ -216,7 +216,7 @@ class MPProctor:
         [landmarks.landmark[1].x, landmarks.landmark[1].y, landmarks.landmark[1].z]
     )
     delta = (
-        np.linalg.norm(cur_nose - self.prev_nose, ord=2)
+        np.linalg.norm(cur_nose - self.__prev_nose, ord=2)
         if self.__prev_nose is not None
         else 0.0
     )
